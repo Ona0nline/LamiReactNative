@@ -1,0 +1,2 @@
+// Has your curr location, user end location input, returns, db info about who's on the way + db info about which ranks have your desired end location
+// "Choosing" a taxi -> Shows you the maps ui of the street + info.
