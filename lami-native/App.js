@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from "./screens/Lami/HomeScreen";
 import ProfileScreen from "./screens/Lami/ProfileScreen";
+import Signup from "./screens/User/SignUp";
 
 import { StyleSheet, View, SafeAreaView, Image,} from 'react-native';
 
@@ -14,11 +15,18 @@ export default function App() {
   const handlePress = () => console.log("Text pressed")
   // require function returns the number  returns the numeric ID of the bundled asset (used internally by React Native)
   return (
-      <NavigationContainer>
+      <>
+          <NavigationContainer>
           <stackNavigator.Navigator initialRouteName="Home">
               <stackNavigator.Screen name={"Home"} component={HomeScreen}/>
               <stackNavigator.Screen name={"Profile"} component={ProfileScreen}/>
           </stackNavigator.Navigator>
       </NavigationContainer>
+
+          <View>
+              <Signup/>
+          </View>
+      </>
+
   );
 }
