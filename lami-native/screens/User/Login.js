@@ -3,8 +3,9 @@ import {Button, StyleSheet, Text, TextInput, Platform, ScrollView, KeyboardAvoid
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function Login () {
+export default function Login ({navigation}) {
 
     const [formData, setFormData] = useState({
         email: "",
@@ -24,12 +25,14 @@ export default function Login () {
         try {
             const res = await axios.post("http://20.20.90.70:9090/login", formData);
             console.log("Login success:", res.data);
-            // Alert with buttons
             Alert.alert("Success", "Login successful", [
-                { text: "OK", onPress: () => console.log("OK Pressed") }
+                { text: "OK", onPress: () => navigation.navigate('Home') }
             ]);
+            await AsyncStorage.setItem('loggedInState', JSON.stringify(true));
         } catch (err) {
             console.error("Login error:", err);
+            await AsyncStorage.setItem('loggedInState', JSON.stringify(false));
+
         }
     };
 

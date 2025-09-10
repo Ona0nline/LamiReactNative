@@ -132,32 +132,6 @@ export default function Signup () {
                     onChangeText={(text) => handleChange("confirmPassword", text)}
                 />
 
-                {/*<Text>Latitude</Text>*/}
-                {/*<TextInput*/}
-                {/*    style={styles.input}*/}
-                {/*    placeholder="Latitude"*/}
-                {/*    keyboardType="numeric"*/}
-                {/*    value={formData.latitude}*/}
-                {/*    onChangeText={(text) => handleChange("latitude", text)}*/}
-                {/*/>*/}
-
-                {/*<Text>Longitude</Text>*/}
-                {/*<TextInput*/}
-                {/*    style={styles.input}*/}
-                {/*    placeholder="Longitude"*/}
-                {/*    keyboardType="numeric"*/}
-                {/*    value={formData.longitude}*/}
-                {/*    onChangeText={(text) => handleChange("longitude", text)}*/}
-                {/*/>*/}
-
-                {/*<Text>Place Name</Text>*/}
-                {/*<TextInput*/}
-                {/*    style={styles.input}*/}
-                {/*    placeholder="Place name"*/}
-                {/*    value={formData.placeName}*/}
-                {/*    onChangeText={(text) => handleChange("placeName", text)}*/}
-                {/*/>*/}
-
                 <Button title="Sign up" onPress={handleSubmit} />
 
             </ScrollView>

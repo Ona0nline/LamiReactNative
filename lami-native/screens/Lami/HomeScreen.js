@@ -1,15 +1,35 @@
 import * as React from 'react';
 import {View, Text, Button, StyleSheet} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useEffect, useState} from "react";
 
 // The page that will have your curr location as UI, and have the sliding about thing (Lami -> LamiLux -> LamiTaxi)
 // Also have the button to take you to the profile page
 export default function HomeScreen({navigation}) {
 
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+    useEffect(() => {
+        const checkLogin = async () => {
+            const token = await AsyncStorage.getItem("loggedInState"); // or any flag you set
+            if (token === "true") {
+                setIsLoggedIn(true);
+            }
+        };
+
+        checkLogin();
+    }, []);
+
     return (
         <View>
-            <Text style={styles.h1}>Lami Home</Text>
-            <Button title={"Sign Up"} onPress={() => navigation.navigate('Signup')} />
-            <Button title={"Login"} onPress={() => navigation.navigate('Login')}/>
+            {isLoggedIn ? (
+                <Text style={styles.h1}>Welcome back!</Text> // or leave empty
+            ) : (
+                <>
+                    <Button title="Signup" onPress={() => navigation.navigate('Signup')} />
+                    <Button title="Login" onPress={() => navigation.navigate('Login')} />
+                </>
+            )}
         </View>
 
     );
