@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import {Button, View, StyleSheet, Text} from "react-native";
-import {TextInput} from "react-native-gesture-handler";
+import {Button, StyleSheet, Text, TextInput, Platform, ScrollView, KeyboardAvoidingView} from "react-native";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from "axios";
 
 export default function Signup () {
@@ -10,10 +10,10 @@ export default function Signup () {
         email: "",
         phone_number: "",
         password: "",
-        confirmpassword: "",
+        confirmPassword: "",
         latitude: "",
         longitude: "",
-        placename: ""
+        placeName: ""
     });
 
     const handleChange = (name, value) => {
@@ -27,7 +27,7 @@ export default function Signup () {
 
     const handleSubmit = async () => {
         try {
-            const res = await axios.post("https://your-api.com/signup", formData);
+            const res = await axios.post("http://20.20.90.70:9090/signup", formData);
             console.log("Signup success:", res.data);
         } catch (err) {
             console.error("Signup error:", err);
@@ -35,10 +35,17 @@ export default function Signup () {
     };
 
     return(
-
-            <View style={styles.container}>
+        <KeyboardAwareScrollView
+            contentContainerStyle={styles.container}
+            enableOnAndroid={true}
+            extraScrollHeight={20} // space above the input
+            keyboardShouldPersistTaps="handled"
+        >
+            <ScrollView contentContainerStyle={{ padding: 16 }}>
             {/*    instead of label it's text andinstead of input it's textinput*/}
-            <Text>Fullname:</Text>
+
+            <Text style={styles.h1}>SignUp form</Text>
+                <Text>Fullname:</Text>
                 <TextInput
                     style={styles.input}
                     placeholder={"Jane Doe"}
@@ -78,8 +85,8 @@ export default function Signup () {
                     style={styles.input}
                     placeholder="Confirm password"
                     secureTextEntry
-                    value={formData.confirmpassword}
-                    onChangeText={(text) => handleChange("confirmpassword", text)}
+                    value={formData.confirmPassword}
+                    onChangeText={(text) => handleChange("confirmPassword", text)}
                 />
 
                 <Text>Latitude</Text>
@@ -104,13 +111,14 @@ export default function Signup () {
                 <TextInput
                     style={styles.input}
                     placeholder="Place name"
-                    value={formData.placename}
-                    onChangeText={(text) => handleChange("placename", text)}
+                    value={formData.placeName}
+                    onChangeText={(text) => handleChange("placeName", text)}
                 />
 
                 <Button title="Sign up" onPress={handleSubmit} />
 
-            </View>
+            </ScrollView>
+        </KeyboardAwareScrollView>
 
     )
 
@@ -121,7 +129,8 @@ export default function Signup () {
 const styles = StyleSheet.create(
     {
         container:{
-            padding:16
+            flex:1,
+            backgroundColor:"white"
         },
 
         input:{
@@ -130,6 +139,14 @@ const styles = StyleSheet.create(
             padding: 8,
             marginVertical: 6,
             borderRadius: 4
-        }
+        },
+        h1: {
+            fontSize: 32,
+            fontWeight: 'bold',
+        },
+        h2: {
+            fontSize: 24,
+            fontWeight: '600',
+        },
     }
 )
