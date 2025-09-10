@@ -1,9 +1,50 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+import * as Location from 'expo-location';
 import {Button, StyleSheet, Text, TextInput, Platform, ScrollView, KeyboardAvoidingView} from "react-native";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+// For local storage purposes
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
 
 export default function Signup () {
+
+    const [location,setLocation] = useState(null)
+
+    useEffect(() => {
+        const fetchLocation = async () => {
+            // Check if location is already stored
+            const storedLocation = await AsyncStorage.getItem('userLocation');
+            if (storedLocation) {
+                setLocation(JSON.parse(storedLocation));
+                return; // we already have it
+            }
+
+            // If not, ask permission and get location
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                console.log('Permission denied');
+                return;
+            }
+
+            const loc = await Location.getCurrentPositionAsync({});
+            setLocation(loc);
+            await AsyncStorage.setItem('userLocation', JSON.stringify(loc));
+            console.log(loc);
+        };
+
+        fetchLocation();
+    }, []);
+
+    useEffect(() => {
+        if (location) {
+            setFormData(prev => ({
+                ...prev,
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+                placeName: "deprecated need"
+            }));
+        }
+    }, [location]);
 
     const [formData, setFormData] = useState({
         username: "",
@@ -15,6 +56,8 @@ export default function Signup () {
         longitude: "",
         placeName: ""
     });
+
+
 
     const handleChange = (name, value) => {
         setFormData({
@@ -89,31 +132,31 @@ export default function Signup () {
                     onChangeText={(text) => handleChange("confirmPassword", text)}
                 />
 
-                <Text>Latitude</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Latitude"
-                    keyboardType="numeric"
-                    value={formData.latitude}
-                    onChangeText={(text) => handleChange("latitude", text)}
-                />
+                {/*<Text>Latitude</Text>*/}
+                {/*<TextInput*/}
+                {/*    style={styles.input}*/}
+                {/*    placeholder="Latitude"*/}
+                {/*    keyboardType="numeric"*/}
+                {/*    value={formData.latitude}*/}
+                {/*    onChangeText={(text) => handleChange("latitude", text)}*/}
+                {/*/>*/}
 
-                <Text>Longitude</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Longitude"
-                    keyboardType="numeric"
-                    value={formData.longitude}
-                    onChangeText={(text) => handleChange("longitude", text)}
-                />
+                {/*<Text>Longitude</Text>*/}
+                {/*<TextInput*/}
+                {/*    style={styles.input}*/}
+                {/*    placeholder="Longitude"*/}
+                {/*    keyboardType="numeric"*/}
+                {/*    value={formData.longitude}*/}
+                {/*    onChangeText={(text) => handleChange("longitude", text)}*/}
+                {/*/>*/}
 
-                <Text>Place Name</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Place name"
-                    value={formData.placeName}
-                    onChangeText={(text) => handleChange("placeName", text)}
-                />
+                {/*<Text>Place Name</Text>*/}
+                {/*<TextInput*/}
+                {/*    style={styles.input}*/}
+                {/*    placeholder="Place name"*/}
+                {/*    value={formData.placeName}*/}
+                {/*    onChangeText={(text) => handleChange("placeName", text)}*/}
+                {/*/>*/}
 
                 <Button title="Sign up" onPress={handleSubmit} />
 
