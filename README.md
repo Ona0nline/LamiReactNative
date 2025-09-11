@@ -18,7 +18,7 @@ Lami is the mobile frontend of a ride-sharing application I’m building to prac
 ## 📐 Design
 
 The user interface is guided by my Figma prototype. The design prioritizes ease of understanding, accessibility, and simplicity, while following a familiar ride-sharing flow and leaving room for iteration.
-👉https://github.com/Ona0nline/LamiReactNative/issues/1#issue-3407378808
+👉 ![Lami Design Sneak Peek](https://github.com/Ona0nline/LamiReactNative/issues/1#issue-3407378808)
 
 ## 🚀 Current Progress
 Basic API endpoints are fully functional (authentication). Mobile screens are connected to the backend and returning live data.
@@ -35,5 +35,6 @@ Through Lami, I’m sharpening my skills in:
 **Creating real-world applications from concept to deployment**
 
 👉 Future updates will include: driver tracking, payment integration, and more polished UI.
+
 
 
