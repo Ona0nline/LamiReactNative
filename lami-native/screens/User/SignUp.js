@@ -114,13 +114,22 @@ export default function Signup () {
                     onChangeText={(text) => handleChange("phone_number", text)}
                 />
 
+                {/*<Text>Password</Text>*/}
+                {/*<TextInput*/}
+                {/*    style={styles.input}*/}
+                {/*    placeholder="Password"*/}
+                {/*    secureTextEntry*/}
+                {/*    value={formData.password}*/}
+                {/*    onChangeText={(text) => handleChange("password", text)}*/}
+                {/*/>*/}
+
                 <Text>Password</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
-                    secureTextEntry
                     value={formData.password}
-                    onChangeText={(text) => handleChange("password", text)}
+                    secureTextEntry
+                    onChangeText={text => handleChange("password", text)}
                 />
 
                 <Text>Confirm Password</Text>
@@ -131,6 +140,24 @@ export default function Signup () {
                     value={formData.confirmPassword}
                     onChangeText={(text) => handleChange("confirmPassword", text)}
                 />
+
+                <Text>Phone Number</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Phone number"
+                    keyboardType="numeric"
+                    value={formData.phone_number}
+                    onChangeText={(text) => handleChange("phone_number", text)}
+                />
+
+                {/*<Text>Confirm Password</Text>*/}
+                {/*<TextInput*/}
+                {/*    style={styles.input}*/}
+                {/*    placeholder="Confirm password"*/}
+                {/*    secureTextEntry*/}
+                {/*    value={formData.confirmPassword}*/}
+                {/*    onChangeText={(text) => handleChange("confirmPassword", text)}*/}
+                {/*/>*/}
 
                 <Button title="Sign up" onPress={handleSubmit} />
 

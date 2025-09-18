@@ -23,12 +23,16 @@ export default function Login ({navigation}) {
 
     const handleSubmit = async () => {
         try {
-            const res = await axios.post("http://20.20.90.70:9090/login", formData);
+            const res = await axios.post( URL + "login", formData);
             console.log("Login success:", res.data);
+            const token = res.data
             Alert.alert("Success", "Login successful", [
                 { text: "OK", onPress: () => navigation.navigate('Home') }
             ]);
             await AsyncStorage.setItem('loggedInState', JSON.stringify(true));
+            await AsyncStorage.setItem('token', token)
+            // Attach header for future calls
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         } catch (err) {
             console.error("Login error:", err);
             await AsyncStorage.setItem('loggedInState', JSON.stringify(false));

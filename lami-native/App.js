@@ -2,7 +2,7 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from "./screens/Lami/HomeScreen";
-import ProfileScreen from "./screens/Lami/ProfileScreen";
+import ProfileScreen from "./screens/User/ProfileScreen";
 import Signup from "./screens/User/SignUp";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
