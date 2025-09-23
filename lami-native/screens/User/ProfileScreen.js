@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text} from "react-native";
+import {View, Text, Button, StyleSheet} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {URL} from "../../utils/global";
 import axios from "axios";
 
-export default function ProfileScreen() {
+export default function ProfileScreen({navigation}) {
 
     const [profile, setProfile] = useState(null);
 
@@ -24,6 +24,7 @@ export default function ProfileScreen() {
                     headers: { Authorization: `Bearer ${token?.trim()}` }
                 }
                 const response = await fetch(URL + "profile", options );
+                console.log("Here?")
                 const data = await response.json();
                 console.log(data);
                 setProfile(data)
@@ -39,17 +40,28 @@ export default function ProfileScreen() {
 
     return (
         <View style={{ padding: 20 }}>
-            <View style={{ backgroundColor: "green", width: 100, height: 100 }} />
+            <View  />
 
             {profile ? (
-                <>
+                <View>
+                    <Text style={styles.h1}>Profile Details</Text>
                     <Text>Email: {profile.email}</Text>
                     <Text>Username: {profile.username}</Text>
                     <Text>Phone: {profile.phone_number}</Text>
-                </>
+
+                    <Button title={"Edit profile"} onPress={() => navigation.navigate('EditProfile')} />
+                </View>
             ) : (
                 <Text>Loading profile...</Text>
             )}
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+        h1:{
+            fontSize:36,
+
+        }
+    }
+)

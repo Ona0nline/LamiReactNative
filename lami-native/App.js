@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { StyleSheet, View, SafeAreaView, Image,} from 'react-native';
 import Login from "./screens/User/Login";
+import EditProfile from "./screens/User/EditProfile";
 
 const stackNavigator = createNativeStackNavigator();
 
@@ -26,6 +27,8 @@ export default function App() {
                       <stackNavigator.Screen name={"Profile"} component={ProfileScreen}/>
                       <stackNavigator.Screen name={"Signup"} component={Signup}/>
                       <stackNavigator.Screen name={"Login"} component={Login}/>
+                      <stackNavigator.Screen name={"EditProfile"} component={EditProfile}/>
+
                   </stackNavigator.Navigator>
               </NavigationContainer>
 
