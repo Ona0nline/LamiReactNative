@@ -16,24 +16,23 @@ export default function Login ({navigation}) {
 
     const handleChange = (name, value) => {
         setFormData({
-            ...formData,     // keep all the old data
-            [name]: value    // but update (or add) the field that changed
+            ...formData,
+            [name]: value
         });
     }
 
-    // NB Axios isn't installed on this system yet, placeholder values
 
     const handleSubmit = async () => {
         try {
             const res = await axios.post( URL + "login", formData);
             console.log("Login success:", res.data);
             const token = res.data
+            await AsyncStorage.setItem('loggedInState', JSON.stringify(true));
+            await AsyncStorage.setItem('token', token)
             Alert.alert("Success", "Login successful", [
                 { text: "OK", onPress: () => navigation.navigate('Home') }
             ]);
-            await AsyncStorage.setItem('loggedInState', JSON.stringify(true));
-            await AsyncStorage.setItem('token', token)
-            // Attach header for future calls
+
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         } catch (err) {
             console.error("Login error:", err);
@@ -71,7 +70,6 @@ export default function Login ({navigation}) {
                     value={formData.password}
                     onChangeText={(text) => handleChange("password", text)}
                 />
-
 
                 <Button title="Login" onPress={handleSubmit} />
 
