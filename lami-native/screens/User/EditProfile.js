@@ -9,13 +9,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function EditProfile({navigation}){
 
     const [usernameText, setUsernameText] = useState("");
+    const [emailText, setEmailText] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
+    const [password, setPassword] = useState("");
 
-    const handleChange = (text) => {
-        setUpdateData((prev) => ({
-            ...prev,
-            value: text
-        }));
-    };
 
     const handleSubmit = async (field, text) =>{
         try {
@@ -26,44 +23,46 @@ export default function EditProfile({navigation}){
                 tochange: field,
                 value: text
             };
-
             const response = await axios.put(URL + "update", body);
-            console.log(response);
             Alert.alert("Success", `Successfully edited ${field}!`);
         } catch (err) {
+            Alert.alert("Failure", `Error editting ${field}.`);
             console.log(err);
         }
     }
 
     return (
-            <View>
-                <Text>Username</Text>
+            <View >
+                <Text style={styles.label}>Username</Text>
+                {/*Remove text after submitting*/}
                 <TextInput style={styles.input}
                    placeholder="Edit Username"
                    onChangeText={(text) => setUsernameText(text)}
                 />
                 <Button title="Submit" onPress={() => handleSubmit("username", usernameText)} />
 
-                <Text>Email</Text>
+                <Text style={styles.label}>Email</Text>
                 <TextInput style={styles.input}
-                           placeholder="Email"
-                           onChangeText={handleChange}
+                           placeholder="Edit Email"
+                           onChangeText={(text) => setEmailText(text)}
                 />
-                <Button title="Submit" onPress={handleSubmit}/>
+                <Button title="Submit" onPress={() => handleSubmit("email", emailText)}/>
 
-                <Text>Phone Number</Text>
+                <Text style={styles.label}>Phone Number</Text>
                 <TextInput style={styles.input}
+                           keyboardType="numeric"
                            placeholder="Edit Phone number"
-                           onChangeText={handleChange}
+                           onChangeText={(text) => setPhoneNumber(text)}
                 />
-                <Button title="Submit" onPress={handleSubmit}/>
+                <Button title="Submit" onPress={() => handleSubmit("phone_number", phoneNumber)}/>
 
-                <Text>Password</Text>
+
+                <Text style={styles.label}>Password</Text>
                 <TextInput style={styles.input}
                            placeholder="Edit Password"
-                           onChangeText={handleChange}
+                           onChangeText={(text) => setPassword(text)}
                 />
-                <Button title="Submit" onPress={handleSubmit}/>
+                <Button title="Submit" onPress={() => handleSubmit("password", password)}/>
 
                 <Button title="Home" onPress={() => navigation.navigate('HomeScreen')}/>
 
@@ -73,16 +72,24 @@ export default function EditProfile({navigation}){
 
 const styles = StyleSheet.create(
     {
-        container:{
-            flex:1,
-            backgroundColor:"white"
+        container: {
+            flexDirection: "row",   // put label + input side by side
+            alignItems: "center",   // align vertically
+            marginVertical: 6,
         },
 
-        input:{
+        label: {
+            marginRight: 8,         // little spacing before input
+            fontSize: 16,
+            color: "#333"
+        },
+
+        input: {
+            flex: 1,                // take remaining space but not too wide
+            maxWidth: 200,          // cap width so it’s not huge
             borderWidth: 1,
             borderColor: "#ccc",
             padding: 8,
-            marginVertical: 6,
             borderRadius: 4
         },
         h1: {
