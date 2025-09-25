@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import * as Location from 'expo-location';
-import {Button, StyleSheet, Text, TextInput, Platform, ScrollView, KeyboardAvoidingView} from "react-native";
+import {Button, StyleSheet, Text, TextInput, Platform, ScrollView, KeyboardAvoidingView, Alert} from "react-native";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 // For local storage purposes
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
 
-export default function Signup () {
+export default function Signup ({navigation}) {
 
     const [location,setLocation] = useState(null)
 
@@ -72,6 +72,7 @@ export default function Signup () {
         try {
             const res = await axios.post("http://20.20.90.70:9090/signup", formData);
             console.log("Signup success:", res.data);
+            Alert.alert("Success", "Signup successful");
         } catch (err) {
             console.error("Signup error:", err);
         }

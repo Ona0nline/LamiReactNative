@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, Button, StyleSheet} from "react-native";
+import {View, Text, Button, StyleSheet, Alert} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {URL} from "../../utils/global";
 import axios from "axios";
@@ -24,14 +24,15 @@ export default function ProfileScreen({navigation}) {
                     headers: { Authorization: `Bearer ${token?.trim()}` }
                 }
                 const response = await fetch(URL + "profile", options );
-                console.log("Here?")
                 const data = await response.json();
                 console.log(data);
                 setProfile(data)
 
                  // store in state
             } catch (err) {
-                console.error(err);
+                Alert.alert("Restricted", "Please login to view your profile", [
+                    { text: "OK", onPress: () => navigation.navigate('Home') }
+                ]);
             }
         };
 
