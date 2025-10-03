@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import * as Location from 'expo-location';
 import {Button, StyleSheet, Text, TextInput, Platform, ScrollView, KeyboardAvoidingView, Alert} from "react-native";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import * as TaskManager from 'expo-task-manager';
 // For local storage purposes
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
@@ -10,29 +11,69 @@ export default function Signup ({navigation}) {
 
     const [location,setLocation] = useState(null)
 
-    useEffect(() => {
-        const fetchLocation = async () => {
-            // Check if location is already stored
-            const storedLocation = await AsyncStorage.getItem('userLocation');
-            if (storedLocation) {
-                setLocation(JSON.parse(storedLocation));
-                return; // we already have it
-            }
+    TaskManager.defineTask("ride-tracking-task", ({ data, error }) => {
+        if (error) {
+            console.error(error);
+            return;
+        }
+        if (data) {
+            const { locations } = data;
 
-            // If not, ask permission and get location
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                console.log('Permission denied');
+            // run async stuff in an inner function
+            (async () => {
+                await AsyncStorage.setItem('userLocation', JSON.stringify(locations));
+                console.log("Saved background location:", locations[0]);
+            })();
+        }
+    });
+
+
+    useEffect(() => {
+
+        const startTracking = async () => {
+
+            let {status} = await Location.requestForegroundPermissionsAsync()
+            if (status !== "granted") {
+                Alert.alert("Foreground location Permission Denied.", "Please allow this app to have location permission.", [
+                    { text: "OK", onPress: () => navigation.navigate('Signup') }
+                ])
                 return;
             }
 
-            const loc = await Location.getCurrentPositionAsync({});
-            setLocation(loc);
-            await AsyncStorage.setItem('userLocation', JSON.stringify(loc));
-            console.log(loc);
+            let { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
+            if (bgStatus !== "granted") {
+                Alert.alert("Background Permission denied", "Please allow this app to have background location permisiion.", [{text:"OK"}])
+                return;
+            }
+
+
+            await Location.startLocationUpdatesAsync("ride-tracking-task", {
+                accuracy: Location.Accuracy.High,
+                distanceInterval: 5,
+                showsBackgroundLocationIndicator: true, // iOS only
+            });
+            console.log("Tracking started:");
         };
 
-        fetchLocation();
+        startTracking();
+
+        return () => {
+            // stop when ride ends
+            Location.stopLocationUpdatesAsync("ride-tracking-task");
+        };
+        }, [])
+
+    useEffect(() => {
+        const fetchStoredLocation = async () => {
+            const stored = await AsyncStorage.getItem('userLocation');
+            if (stored) {
+                setLocation(JSON.parse(stored));
+            }
+        };
+
+        // poll every 5s, or set up a listener
+        const interval = setInterval(fetchStoredLocation, 5000);
+        return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
@@ -45,6 +86,7 @@ export default function Signup ({navigation}) {
             }));
         }
     }, [location]);
+
 
     const [formData, setFormData] = useState({
         username: "",
