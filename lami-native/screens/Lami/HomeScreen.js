@@ -83,7 +83,7 @@ export default function HomeScreen({navigation}) {
         // (async () => {})() is just an anonymous async function that runs immediately.
         // It’s mostly used when you need await in a place where the parent function can’t be async (like useEffect).
         (async () => {
-            let location = AsyncStorage.getItem('userLocation')
+            let location = await AsyncStorage.getItem('userLocation')
             setRegion({
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
@@ -110,32 +110,39 @@ export default function HomeScreen({navigation}) {
     }, []);
 
     return (
-        <View>
-
+        <View style={{ flex: 1 }}>
             {isLoggedIn ? (
                 <>
-                <Text style={styles.h1}>Welcome back!</Text>
-                <Button title="Profile" onPress={() => navigation.navigate('Profile')} />
+                    <Text style={styles.h1}>Welcome back!</Text>
+                    <Button title="Profile" onPress={() => navigation.navigate('Profile')} />
                 </>
-
             ) : (
                 <>
                     <Button title="Signup" onPress={() => navigation.navigate('Signup')} />
                     <Button title="Login" onPress={() => navigation.navigate('Login')} />
-
                 </>
             )}
 
-        {/*    Map*/}
-            <View>
-                <MapView
-                    style={styles.map}
-                    region={region}
-                    showsUserLocation={true}>
-                    <Marker coordinate={region} title="You are here" />
-                </MapView>
-            </View>
+            {/* Map */}
+            {region && (
+                <View style={{ flex: 1 }}>
+                    <MapView
+                        style={{ flex: 1 }}
+                        region={region}
+                        showsUserLocation={true}
+                    >
+                        <Marker
+                            coordinate={{
+                                latitude: region.latitude,
+                                longitude: region.longitude,
+                            }}
+                            title="You are here"
+                        />
+                    </MapView>
+                </View>
+            )}
         </View>
+
 
     );
 
@@ -148,7 +155,8 @@ const styles = StyleSheet.create(
             backgroundColor:"white"
         },
 
-        map: { flex: 1 },
+        map: { flex: 1
+        },
 
         input:{
             borderWidth: 1,
