@@ -29,6 +29,13 @@ export default function Signup ({navigation}) {
 
 
     useEffect(() => {
+        const fetchLocation = async () => {
+            // Check if location is already stored
+            const storedLocation = await AsyncStorage.getItem('userLocation');
+            if (storedLocation) {
+                setLocation(JSON.parse(storedLocation));
+                return; // we already have it
+            }
 
         const startTracking = async () => {
 
@@ -82,7 +89,6 @@ export default function Signup ({navigation}) {
                 ...prev,
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
-                placeName: "deprecated need"
             }));
         }
     }, [location]);
@@ -99,12 +105,28 @@ export default function Signup ({navigation}) {
         placeName: ""
     });
 
+    useEffect(() => {
+        const loadStoredLocation = async () => {
+            const stored = await AsyncStorage.getItem('userLocation');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                setFormData(prev => ({
+                    ...prev,
+                    latitude: parsed.coords.latitude,
+                    longitude: parsed.coords.longitude,
+                }));
+            }
+        };
+
+        loadStoredLocation();
+    }, []);
+
 
 
     const handleChange = (name, value) => {
         setFormData({
-            ...formData,     // keep all the old data
-            [name]: value    // but update (or add) the field that changed
+            ...formData,
+            [name]: value
         });
     }
 
@@ -114,9 +136,13 @@ export default function Signup ({navigation}) {
         try {
             const res = await axios.post("http://20.20.90.70:9090/signup", formData);
             console.log("Signup success:", res.data);
-            Alert.alert("Success", "Signup successful");
+            Alert.alert("Success", "Signup successful", [
+                { text: "OK", onPress: () => navigation.navigate('Login') }]);
         } catch (err) {
-            console.error("Signup error:", err);
+            Alert.alert("Signup error", "Unsuccessful signup attempt. Please try again", [
+                { text: "OK", onPress: () => navigation.navigate('Signup') }
+            ]);
+
         }
     };
 
@@ -128,7 +154,6 @@ export default function Signup ({navigation}) {
             keyboardShouldPersistTaps="handled"
         >
             <ScrollView contentContainerStyle={{ padding: 16 }}>
-            {/*    instead of label it's text andinstead of input it's textinput*/}
 
             <Text style={styles.h1}>SignUp form</Text>
                 <Text>Fullname:</Text>
@@ -157,14 +182,6 @@ export default function Signup ({navigation}) {
                     onChangeText={(text) => handleChange("phone_number", text)}
                 />
 
-                {/*<Text>Password</Text>*/}
-                {/*<TextInput*/}
-                {/*    style={styles.input}*/}
-                {/*    placeholder="Password"*/}
-                {/*    secureTextEntry*/}
-                {/*    value={formData.password}*/}
-                {/*    onChangeText={(text) => handleChange("password", text)}*/}
-                {/*/>*/}
 
                 <Text>Password</Text>
                 <TextInput
@@ -184,23 +201,6 @@ export default function Signup ({navigation}) {
                     onChangeText={(text) => handleChange("confirmPassword", text)}
                 />
 
-                <Text>Phone Number</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Phone number"
-                    keyboardType="numeric"
-                    value={formData.phone_number}
-                    onChangeText={(text) => handleChange("phone_number", text)}
-                />
-
-                {/*<Text>Confirm Password</Text>*/}
-                {/*<TextInput*/}
-                {/*    style={styles.input}*/}
-                {/*    placeholder="Confirm password"*/}
-                {/*    secureTextEntry*/}
-                {/*    value={formData.confirmPassword}*/}
-                {/*    onChangeText={(text) => handleChange("confirmPassword", text)}*/}
-                {/*/>*/}
 
                 <Button title="Sign up" onPress={handleSubmit} />
 

@@ -26,7 +26,6 @@ export default function HomeScreen({navigation}) {
             {isLoggedIn ? (
                 <>
                 <Text style={styles.h1}>Welcome back!</Text>
-                <Button title="Login" onPress={() => navigation.navigate('Login')} />
                 <Button title="Profile" onPress={() => navigation.navigate('Profile')} />
                 </>
 

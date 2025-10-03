@@ -35,7 +35,9 @@ export default function Login ({navigation}) {
 
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         } catch (err) {
-            console.error("Login error:", err);
+            Alert.alert("Login denied", "Password or email is incorrect", [
+                { text: "OK", onPress: () => navigation.navigate('Login') }
+            ]);
             await AsyncStorage.setItem('loggedInState', JSON.stringify(false));
 
         }

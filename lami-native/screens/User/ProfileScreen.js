@@ -31,7 +31,7 @@ export default function ProfileScreen({navigation}) {
                  // store in state
             } catch (err) {
                 Alert.alert("Restricted", "Please login to view your profile", [
-                    { text: "OK", onPress: () => navigation.navigate('Home') }
+                    { text: "OK", onPress: () => navigation.navigate('Login') }
                 ]);
             }
         };
