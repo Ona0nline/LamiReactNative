@@ -88,7 +88,8 @@ export default function Signup ({navigation}) {
         try {
             const res = await axios.post("http://20.20.90.70:9090/signup", formData);
             console.log("Signup success:", res.data);
-            Alert.alert("Success", "Signup successful");
+            Alert.alert("Success", "Signup successful", [
+                { text: "OK", onPress: () => navigation.navigate('Login') }]);
         } catch (err) {
             Alert.alert("Signup error", "Unsuccessful signup attempt. Please try again", [
                 { text: "OK", onPress: () => navigation.navigate('Signup') }
