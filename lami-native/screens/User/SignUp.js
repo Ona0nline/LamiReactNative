@@ -18,24 +18,16 @@ export default function Signup ({navigation}) {
         }
         if (data) {
             const { locations } = data;
-
-            // run async stuff in an inner function
+            const latest = locations[0];
+            setLocation(latest);  // ✅ directly update state
             (async () => {
-                await AsyncStorage.setItem('userLocation', JSON.stringify(locations));
-                console.log("Saved background location:", locations[0]);
+                await AsyncStorage.setItem('userLocation', JSON.stringify(latest));
             })();
         }
     });
 
 
     useEffect(() => {
-        const fetchLocation = async () => {
-            // Check if location is already stored
-            const storedLocation = await AsyncStorage.getItem('userLocation');
-            if (storedLocation) {
-                setLocation(JSON.parse(storedLocation));
-                return; // we already have it
-            }
 
         const startTracking = async () => {
 
@@ -65,10 +57,11 @@ export default function Signup ({navigation}) {
         startTracking();
 
         return () => {
-            // stop when ride ends
+            // stop when ride ends, idk how I would determine htis though
             Location.stopLocationUpdatesAsync("ride-tracking-task");
         };
         }, [])
+
 
     useEffect(() => {
         const fetchStoredLocation = async () => {
@@ -83,6 +76,7 @@ export default function Signup ({navigation}) {
         return () => clearInterval(interval);
     }, []);
 
+    // Applying the location in the formData to be sent as a post
     useEffect(() => {
         if (location) {
             setFormData(prev => ({
@@ -105,23 +99,6 @@ export default function Signup ({navigation}) {
         placeName: ""
     });
 
-    useEffect(() => {
-        const loadStoredLocation = async () => {
-            const stored = await AsyncStorage.getItem('userLocation');
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                setFormData(prev => ({
-                    ...prev,
-                    latitude: parsed.coords.latitude,
-                    longitude: parsed.coords.longitude,
-                }));
-            }
-        };
-
-        loadStoredLocation();
-    }, []);
-
-
 
     const handleChange = (name, value) => {
         setFormData({
@@ -130,7 +107,6 @@ export default function Signup ({navigation}) {
         });
     }
 
-    // NB Axios isn't installed on this system yet, placeholder values
 
     const handleSubmit = async () => {
         try {
