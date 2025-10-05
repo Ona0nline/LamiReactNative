@@ -1,116 +1,107 @@
 import * as React from 'react';
-import {View, Text, Button, StyleSheet, Alert} from "react-native";
+import { View, Text, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {useEffect, useState} from "react";
-import * as Location from "expo-location";
-import * as TaskManager from "expo-task-manager";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import * as Location from 'expo-location';
 
-// The page that will have your curr location as UI, and have the sliding about thing (Lami -> LamiLux -> LamiTaxi)
-// Also have the button to take you to the profile page
-export default function HomeScreen({navigation}) {
-
-    const [location,setLocation] = useState(null)
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
+export default function HomeScreen({ navigation }) {
+    const [location, setLocation] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [region, setRegion] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    TaskManager.defineTask("ride-tracking-task", ({ data, error }) => {
-        if (error) {
-            console.error(error);
-            return;
-        }
-        if (data) {
-            const { locations } = data;
-            const latest = locations[0];
-            setLocation(latest);
-            (async () => {
-                await AsyncStorage.setItem('userLocation', JSON.stringify(latest));
-            })();
-        }
-    });
-
-    useEffect(() => {
-
-        const startTracking = async () => {
-
-            let {status} = await Location.requestForegroundPermissionsAsync()
-            if (status !== "granted") {
-                Alert.alert("Foreground location Permission Denied.", "Please allow this app to have location permission.", [
-                    { text: "OK", onPress: () => navigation.navigate('Signup') }
-                ])
-                return;
-            }
-
-            let { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
-            if (bgStatus !== "granted") {
-                Alert.alert("Background Permission denied", "Please allow this app to have background location permisiion.", [{text:"OK"}])
-                return;
-            }
-
-
-            await Location.startLocationUpdatesAsync("ride-tracking-task", {
-                accuracy: Location.Accuracy.High,
-                distanceInterval: 5,
-                showsBackgroundLocationIndicator: true, // iOS only
-            });
-            console.log("Tracking started");
-        };
-
-        startTracking();
-
-        return () => {
-            // stop when ride ends, idk how I would determine htis though
-            Location.stopLocationUpdatesAsync("ride-tracking-task");
-        };
-    }, [])
-
-
-    useEffect(() => {
-        const fetchStoredLocation = async () => {
-            const stored = await AsyncStorage.getItem('userLocation');
-            if (stored) {
-                setLocation(JSON.parse(stored));
-                console.log(stored)
-            }
-        };
-
-        const interval = setInterval(fetchStoredLocation, 5000);
-        return () => clearInterval(interval);
-    }, []);
-
-    useEffect( () =>{
-        // async function syntax == (async () => {})()
-        // (async () => {})() is just an anonymous async function that runs immediately.
-        // It’s mostly used when you need await in a place where the parent function can’t be async (like useEffect).
-        (async () => {
-            let location = await AsyncStorage.getItem('userLocation')
-            setRegion({
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-                // zoom level
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-            });
-
-        })();
-    }, [])
-
-    if (!region) return null;
-
-    // Homescreen only loads if user is logged in
+    // Check login status
     useEffect(() => {
         const checkLogin = async () => {
-            const token = await AsyncStorage.getItem("loggedInState"); // or any flag you set
-            if (token === "true") {
-                setIsLoggedIn(true);
+            try {
+                const token = await AsyncStorage.getItem('loggedInState');
+                setIsLoggedIn(token === 'true');
+            } catch (error) {
+                console.error('Error checking login state:', error);
+            } finally {
+                setIsLoading(false);
             }
         };
-
         checkLogin();
     }, []);
 
+    // Get foreground location
+    useEffect(() => {
+        const getLocation = async () => {
+            try {
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                let locationConfig = { accuracy: Location.Accuracy.High };
+
+                if (status !== 'granted') {
+                    Alert.alert(
+                        'Location Permission Denied',
+                        'Please enable location permissions in Settings to view the map.',
+                        [{ text: 'OK' }]
+                    );
+                    locationConfig.accuracy = Location.Accuracy.Low;
+                }
+
+                const currentLocation = await Location.getCurrentPositionAsync({
+                    accuracy: locationConfig.accuracy,
+                });
+                setLocation(currentLocation);
+                await AsyncStorage.setItem('userLocation', JSON.stringify(currentLocation));
+                setRegion({
+                    latitude: currentLocation.coords.latitude,
+                    longitude: currentLocation.coords.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                });
+                console.log('Location fetched:', currentLocation);
+            } catch (error) {
+                console.error('Error fetching location:', error.message, error.stack);
+                Alert.alert(
+                    'Location Error',
+                    `Failed to access location: ${error.message}. Please ensure location permissions are enabled.`,
+                    [{ text: 'OK' }]
+                );
+            }
+        };
+
+        getLocation();
+    }, []);
+
+    // Update location periodically
+    useEffect(() => {
+        const updateLocation = async () => {
+            try {
+                const stored = await AsyncStorage.getItem('userLocation');
+                if (stored) {
+                    const parsedLocation = JSON.parse(stored);
+                    setLocation(parsedLocation);
+                    setRegion({
+                        latitude: parsedLocation.coords.latitude,
+                        longitude: parsedLocation.coords.longitude,
+                        latitudeDelta: 0.01,
+                        longitudeDelta: 0.01,
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching stored location:', error);
+            }
+        };
+
+        updateLocation();
+        const interval = setInterval(updateLocation, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+    if (isLoading) {
+        return (
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+        );
+    }
+
     return (
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
             {isLoggedIn ? (
                 <>
                     <Text style={styles.h1}>Welcome back!</Text>
@@ -123,55 +114,51 @@ export default function HomeScreen({navigation}) {
                 </>
             )}
 
-            {/* Map */}
-            {region && (
-                <View style={{ flex: 1 }}>
-                    <MapView
-                        style={{ flex: 1 }}
-                        region={region}
-                        showsUserLocation={true}
-                    >
-                        <Marker
-                            coordinate={{
-                                latitude: region.latitude,
-                                longitude: region.longitude,
-                            }}
-                            title="You are here"
-                        />
-                    </MapView>
+            {region ? (
+                <MapView
+                    style={styles.map}
+                    region={region}
+                    showsUserLocation={true}
+                >
+                    <Marker
+                        coordinate={{
+                            latitude: region.latitude,
+                            longitude: region.longitude,
+                        }}
+                        title="You are here"
+                    />
+                </MapView>
+            ) : (
+                <View style={styles.map}>
+                    <Text>Waiting for location...</Text>
                 </View>
             )}
         </View>
-
-
     );
-
-
 }
-const styles = StyleSheet.create(
-    {
-        container:{
-            flex:1,
-            backgroundColor:"white"
-        },
 
-        map: { flex: 1
-        },
-
-        input:{
-            borderWidth: 1,
-            borderColor: "#ccc",
-            padding: 8,
-            marginVertical: 6,
-            borderRadius: 4
-        },
-        h1: {
-            fontSize: 32,
-            fontWeight: 'bold',
-        },
-        h2: {
-            fontSize: 24,
-            fontWeight: '600',
-        },
-    })
-
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: 'white',
+    },
+    map: {
+        flex: 1,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 8,
+        marginVertical: 6,
+        borderRadius: 4,
+    },
+    h1: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        padding: 10,
+    },
+    h2: {
+        fontSize: 24,
+        fontWeight: '600',
+    },
+});
