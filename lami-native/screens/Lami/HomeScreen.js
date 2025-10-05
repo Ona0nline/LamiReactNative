@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import {View, Text, Button, StyleSheet, Alert, ActivityIndicator, TextInput} from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
@@ -133,6 +133,9 @@ export default function HomeScreen({ navigation }) {
                     <Text>Waiting for location...</Text>
                 </View>
             )}
+
+            <Button title="Lami" onPress={() => navigation.navigate('RideSearch')} />
+
         </View>
     );
 }

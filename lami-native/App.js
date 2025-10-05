@@ -10,6 +10,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, View, SafeAreaView, Image,} from 'react-native';
 import Login from "./screens/User/Login";
 import EditProfile from "./screens/User/EditProfile";
+import RideSearchScreen from "./screens/Lami/RideSearchScreen";
 
 const stackNavigator = createNativeStackNavigator();
 
@@ -28,6 +29,7 @@ export default function App() {
                       <stackNavigator.Screen name={"Signup"} component={Signup}/>
                       <stackNavigator.Screen name={"Login"} component={Login}/>
                       <stackNavigator.Screen name={"EditProfile"} component={EditProfile}/>
+                      <stackNavigator.Screen name={"RideSearch"} component={RideSearchScreen}/>
 
                   </stackNavigator.Navigator>
               </NavigationContainer>
