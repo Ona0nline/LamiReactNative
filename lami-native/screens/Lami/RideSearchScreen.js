@@ -3,6 +3,7 @@
 import React, {useState} from "react";
 import {Alert, Button, StyleSheet, Text, TextInput, View} from "react-native";
 import * as Location from 'expo-location';
+import axios from "axios";
 
 
 export default function RideSearchScreen({navigation}) {
@@ -64,6 +65,18 @@ export default function RideSearchScreen({navigation}) {
 
     }
 
+    const availiableRides = async () => {
+        try {
+            const response = await axios.post("http://192.168.8.181:9090/lami/available-rides",locationBody)
+            console.log("API Response: " + response.data)
+            Alert.alert("Success!", "Click OK to see list of available drivers near you.", [{text:"OK"}])
+        }catch (err){
+            Alert.alert("Ride Search Failure", "OOPS! Looks like there no drivers near you!", [{text:"OK", onPress: () => navigation.navigate('RideSearch')}])
+            console.log(err)
+        }
+
+    }
+
 
     return(
         <View>
@@ -86,6 +99,8 @@ export default function RideSearchScreen({navigation}) {
                 onChangeText={text => handleChange("endAddress", text)}
             />
             <Button title={"Submit End Address"} onPress={geolocationEnd}/>
+
+            <Button title={"Search for available drivers"} onPress={availiableRides}/>
 
 
         </View>
