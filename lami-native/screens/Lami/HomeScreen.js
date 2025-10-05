@@ -4,6 +4,7 @@ import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
+// npm install react-native-google-places-autocomplete.
 
 export default function HomeScreen({ navigation }) {
     const [location, setLocation] = useState(null);
