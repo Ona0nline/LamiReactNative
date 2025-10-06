@@ -1,7 +1,7 @@
 // Start and end location, stops etc.
 //After choosing actual end location, take you to the confirm screen - where you choose the ride size and consequntally the price
 import React, {useState} from "react";
-import {Alert, Button, StyleSheet, Text, TextInput, View} from "react-native";
+import {Alert, Button, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import * as Location from 'expo-location';
 import axios from "axios";
 
@@ -17,6 +17,7 @@ export default function RideSearchScreen({navigation}) {
 
     const [driverDetails, setDriverDetails] = useState({
         "drivername": ' ',
+        "driverId":0,
         "number_plate":' ',
         "perks":' ',
         "driverLocation": ' ',
@@ -97,11 +98,12 @@ export default function RideSearchScreen({navigation}) {
             setDriverDetails({
                 // UPDATE --> FOR LOOP HERE
                 "drivername": response.data.nearbyDrivers[0].drivername,
+                "driverId": response.data.nearbyDrivers[0].id,
                 "number_plate": response.data.nearbyDrivers[0].licensePlate,
                 "perks": response.data.nearbyDrivers[0].perks,
                 "driverLocation": response.data.nearbyDrivers[0].placeName,
-                "startLocation": response.data.nearbyDrivers[0].userStart,
-                "endlocation": response.data.nearbyDrivers[0].userEnd
+                "startLocation": locationBody.startAddress,
+                "endlocation": locationBody.endAddress
             })
 
         }catch (err){
@@ -111,10 +113,22 @@ export default function RideSearchScreen({navigation}) {
 
     }
 
+    const requestRide = async () =>{
+        try {
+            const response = await axios.post("http://20.20.90.148:9090/lami/request-ride", {"driverId":driverDetails.driverId})
+            console.log(response.data)
+            Alert.alert("Success!", "Driver selected.", [{text:"OK"}])
+
+        }catch (err){
+            Alert.alert("Problem Requesting Ride", "Please try again", [{text:"OK"}])
+            console.log(err)
+        }
+    }
+
 
     return(
-        <View>
-            <Text>Start Address</Text>
+        <View style={styles.container}>
+            <Text style={styles.h3}>Start Address</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Start address"
@@ -122,40 +136,48 @@ export default function RideSearchScreen({navigation}) {
                 onChangeText={(text) => handleChange("startAddress", text)}
             />
             {/*MVP Purposes*/}
-            <Button title={"Submit Start Address"} onPress={geolocationStart}/>
+            <TouchableOpacity style={styles.submit} onPress={geolocationStart}>
+                <Text style={styles.buttonText}>Submit Start Address</Text>
+            </TouchableOpacity>
 
 
-            <Text>Destination address</Text>
+            <Text style={styles.h3}>Destination address</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Destination address"
                 value={locationBody.endAddress}
                 onChangeText={text => handleChange("endAddress", text)}
             />
-            <Button title={"Submit End Address"} onPress={geolocationEnd}/>
+            <TouchableOpacity style={styles.submit} onPress={geolocationEnd}>
+                <Text style={styles.buttonText}>Submit End Address</Text>
+            </TouchableOpacity>
 
-            <Button title={"Search for available drivers"} onPress={availiableRides}/>
+            <TouchableOpacity style={styles.search} onPress={availiableRides}>
+                <Text style={styles.buttonText}>Search for available drivers</Text>
+            </TouchableOpacity>
 
             <View>
                 {
                     ridesFound ? (
                         <View>
                             <View>
-                                <Text>Ride fare: {rideMetaData.fare}</Text>
-                                <Text>Ride Duration: {rideMetaData.duration}</Text>
-                                <Text>Ride Distance: {rideMetaData.distance}</Text>
+                                <Text style={styles.text}>Ride fare: {rideMetaData.fare}</Text>
+                                <Text style={styles.text}>Ride Duration: {rideMetaData.duration}</Text>
+                                <Text style={styles.text}>Ride Distance: {rideMetaData.distance}</Text>
                             </View>
 
                             <View>
-                                <Text>Driver Details:</Text>
-                                <Text>Driver name: {driverDetails.drivername}</Text>
-                                <Text>License Plate: {driverDetails.number_plate}</Text>
-                                <Text>Perks: {driverDetails.perks}</Text>
+                                <Text style={styles.text}>Driver Details:</Text>
+                                <Text style={styles.text}>Driver name: {driverDetails.drivername}</Text>
+                                <Text style={styles.text}>License Plate: {driverDetails.number_plate}</Text>
+                                <Text style={styles.text}>Perks: {driverDetails.perks}</Text>
                                 {/*Soon this will allow for editting, endpoint doesnt exist yet*/}
-                                <Text>Your start location: {driverDetails.startLocation}</Text>
-                                <Text>Your chosen end location: {driverDetails.endlocation}</Text>
+                                <Text style={styles.text}>Your start location: {driverDetails.startLocation}</Text>
+                                <Text style={styles.text}>Your chosen end location: {driverDetails.endlocation}</Text>
 
                             </View>
+
+                            <Button title={"Select Driver"} onPress={requestRide}/>
 
                         </View>
 
@@ -175,17 +197,18 @@ export default function RideSearchScreen({navigation}) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: '#28282B',
     },
     map: {
         flex: 1,
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: "#FDE12D",
         padding: 8,
         marginVertical: 6,
         borderRadius: 4,
+        backgroundColor:'grey',
     },
     h1: {
         fontSize: 32,
@@ -196,4 +219,41 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: '600',
     },
+    h3: {
+        fontSize: 16,
+        fontWeight: '400',
+        marginLeft: 15,
+        color:'white'
+    },
+    submit:{
+        width: 200,
+        paddingVertical: 6,
+        paddingHorizontal: 50,
+        borderRadius: 8,
+        alignItems: 'center',
+        backgroundColor:'#FDE12D'
+
+    },
+    buttonText: {
+        width:300,
+        fontWeight: '600',
+        fontSize: 16,
+        flexShrink: 1,       // allows text to shrink instead of wrapping
+        textAlign: 'center', // centers the text
+        numberOfLines: 1,    // ensures single line
+    },
+    search:{
+        width: 200,
+        paddingVertical: 6,
+        paddingHorizontal: 50,
+        borderRadius: 8,
+        alignItems: 'center',
+        backgroundColor:'#FDE12D',
+        marginTop:40
+    },
+    text:{
+        color:"#FFF"
+    }
+
+
 });
