@@ -62,6 +62,7 @@ export default function HomeScreen({ navigation }) {
                     `Failed to access location: ${error.message}. Please ensure location permissions are enabled.`,
                     [{ text: 'OK' }]
                 );
+
             }
         };
 

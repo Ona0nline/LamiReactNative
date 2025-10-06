@@ -67,7 +67,7 @@ export default function RideSearchScreen({navigation}) {
 
     const availiableRides = async () => {
         try {
-            const response = await axios.post("http://192.168.8.181:9090/lami/available-rides",locationBody)
+            const response = await axios.post("http://20.20.90.29:9090/lami/available-rides",locationBody)
             console.log("API Response: " + response.data)
             Alert.alert("Success!", "Click OK to see list of available drivers near you.", [{text:"OK"}])
         }catch (err){
