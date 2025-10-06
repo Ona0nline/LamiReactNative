@@ -8,6 +8,22 @@ import axios from "axios";
 
 export default function RideSearchScreen({navigation}) {
 
+    const [ridesFound, setRidesFound] = useState(false)
+    const [rideMetaData, setRideMetaData] = useState({
+        "distance": 0,
+        "duration":0,
+        "fare":' '
+    })
+
+    const [driverDetails, setDriverDetails] = useState({
+        "drivername": ' ',
+        "number_plate":' ',
+        "perks":' ',
+        "driverLocation": ' ',
+        "startLocation":' ',
+        "endlocation":' '
+    })
+
     const [locationBody, setLocationBody] = useState({
         "startAddress": ' ',
         "endAddress": ' ',
@@ -15,8 +31,6 @@ export default function RideSearchScreen({navigation}) {
         "startLongitude": 0,
 
     })
-    // The actual API Call
-    // Geolocation + setting rest of form values up to POST
 
     const handleChange =  (name, value) => {
 
@@ -66,10 +80,30 @@ export default function RideSearchScreen({navigation}) {
     }
 
     const availiableRides = async () => {
+        await geolocationStart();
+        await geolocationEnd();
+        console.log("Sending location body: " + JSON.stringify(locationBody))
         try {
-            const response = await axios.post("http://20.20.90.29:9090/lami/available-rides",locationBody)
-            console.log("API Response: " + response.data)
+            const response = await axios.post("http://20.20.90.148:9090/lami/available-rides",locationBody)
+            console.log("API Response: ", response.data)
             Alert.alert("Success!", "Click OK to see list of available drivers near you.", [{text:"OK"}])
+            setRidesFound(true)
+
+            setRideMetaData({"distance": response.data.distanceMatrixResponseDTO.distance,
+                                   "duration": response.data.distanceMatrixResponseDTO.duration,
+                                   "fare": response.data.distanceMatrixResponseDTO.fare
+                                    })
+
+            setDriverDetails({
+                // UPDATE --> FOR LOOP HERE
+                "drivername": response.data.nearbyDrivers[0].drivername,
+                "number_plate": response.data.nearbyDrivers[0].licensePlate,
+                "perks": response.data.nearbyDrivers[0].perks,
+                "driverLocation": response.data.nearbyDrivers[0].placeName,
+                "startLocation": response.data.nearbyDrivers[0].userStart,
+                "endlocation": response.data.nearbyDrivers[0].userEnd
+            })
+
         }catch (err){
             Alert.alert("Ride Search Failure", "OOPS! Looks like there no drivers near you!", [{text:"OK", onPress: () => navigation.navigate('RideSearch')}])
             console.log(err)
@@ -102,6 +136,37 @@ export default function RideSearchScreen({navigation}) {
 
             <Button title={"Search for available drivers"} onPress={availiableRides}/>
 
+            <View>
+                {
+                    ridesFound ? (
+                        <View>
+                            <View>
+                                <Text>Ride fare: {rideMetaData.fare}</Text>
+                                <Text>Ride Duration: {rideMetaData.duration}</Text>
+                                <Text>Ride Distance: {rideMetaData.distance}</Text>
+                            </View>
+
+                            <View>
+                                <Text>Driver Details:</Text>
+                                <Text>Driver name: {driverDetails.drivername}</Text>
+                                <Text>License Plate: {driverDetails.number_plate}</Text>
+                                <Text>Perks: {driverDetails.perks}</Text>
+                                {/*Soon this will allow for editting, endpoint doesnt exist yet*/}
+                                <Text>Your start location: {driverDetails.startLocation}</Text>
+                                <Text>Your chosen end location: {driverDetails.endlocation}</Text>
+
+                            </View>
+
+                        </View>
+
+
+
+                    ) : (
+                        ''
+                        // Alert.alert("No rides near you.", "Please try again later", [{text:"OK"}])
+                    )
+                }
+            </View>
 
         </View>
     )
