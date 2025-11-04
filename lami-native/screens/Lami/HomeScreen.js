@@ -136,6 +136,7 @@ export default function HomeScreen({ navigation }) {
                 </View>
             )}
 
+            <Button title="Taxi" onPress={() => navigation.navigate('TaxiInformation')} />
             <Button title="Lami" onPress={() => navigation.navigate('RideSearch')} />
 
         </View>

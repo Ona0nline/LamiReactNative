@@ -6,7 +6,7 @@ import * as Location from 'expo-location';
 import axios from "axios";
 
 
-export default function RideSearchScreen({navigation}) {
+export default function LamiRideSearchScreen({navigation}) {
 
     const [ridesFound, setRidesFound] = useState(false)
     const [rideMetaData, setRideMetaData] = useState({
